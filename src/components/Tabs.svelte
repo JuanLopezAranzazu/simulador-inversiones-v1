@@ -6,21 +6,29 @@
   const handleClick = (tabValue) => () => (activeTabValue = tabValue);
 </script>
 
-<div class="options">
-  {#each items as item}
-    <div class={activeTabValue === item.value ? "option active" : "option"}>
-      <span on:click={handleClick(item.value)}>{item.label}</span>
-    </div>
-  {/each}
-</div>
+<section>
+  <div class="options">
+    {#each items as item}
+      <div class={activeTabValue === item.value ? "option active" : "option"}>
+        <span on:click={handleClick(item.value)}>{item.label}</span>
+      </div>
+    {/each}
+  </div>
 
-{#each items as item}
-  {#if activeTabValue === item.value}
-    <svelte:component this={item.component} />
-  {/if}
-{/each}
+  {#each items as item}
+    {#if activeTabValue === item.value}
+      <svelte:component this={item.component} />
+    {/if}
+  {/each}
+</section>
 
 <style>
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
   .options {
     display: flex;
     justify-content: center;

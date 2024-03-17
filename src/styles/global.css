@@ -10,6 +10,7 @@ body {
   --secondary: #1d3465;
   --color-primary: #1d3465;
   --color-secondary: #fca311;
+  --card-color: #e5e5e5;
   --error: #e7195a;
   --site-width: 1280px;
 }
@@ -20,11 +21,13 @@ a {
 }
 
 label,
-input {
+input,
+select {
   display: block;
 }
 
-input {
+input,
+select {
   padding: 10px;
   width: 100%;
   border: 1px solid #ddd;
@@ -45,6 +48,15 @@ button:hover {
   background: var(--secondary);
 }
 
+button.delete {
+  background: #e7195a;
+  color: #fff;
+}
+
+button.delete:hover {
+  background: #c3164d;
+}
+
 div.error {
   padding: 10px;
   background: #ffefef;
@@ -54,6 +66,7 @@ div.error {
   margin: 20px 0;
 }
 
-input.error {
+input.error,
+select.error {
   border: 1px solid var(--error);
 }

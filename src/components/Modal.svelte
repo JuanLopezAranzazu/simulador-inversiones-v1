@@ -1,10 +1,11 @@
 <script>
   // variables
-  export let isOpen = false;
+  export let isModalOpen = false;
+  export let handleModalClose;
 </script>
 
-{#if isOpen}
-  <div class="modal">
+{#if isModalOpen}
+  <div class="modal" on:click|self|preventDefault={handleModalClose}>
     <div class="modal-content">
       <slot />
     </div>
