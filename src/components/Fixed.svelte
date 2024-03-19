@@ -1,6 +1,7 @@
 <script>
+  import { itemsDataFixed } from "./../helpers/store";
   // components
   import Card from "./Card.svelte";
 </script>
 
-<Card key={"itemsDataFixed"} title={"Gestión Inversión Fija"} />
+<Card itemsStore={itemsDataFixed} title={"Gestión Inversión Fija"} />

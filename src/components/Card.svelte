@@ -1,33 +1,62 @@
 <script>
-  import { onMount } from "svelte";
-  import { LocalStorageService } from "./../helpers/LocalStorageService";
+  import { fade } from "svelte/transition";
+  import { onDestroy } from "svelte";
+  import { currencyData } from "./../helpers/store";
   import { lettersRegex, numberRegex } from "./../helpers/regex";
   // components
   import Modal from "./Modal.svelte";
   import ItemList from "./ItemList.svelte";
   // variables
-  export let key = "";
+  export let itemsStore;
   export let title = "";
   let items = [];
   let isModalOpen = false;
-  let description = "";
-  let price = 0;
-  let qty = 1;
-  let coinType = "";
+  let description;
+  let price;
+  let qty;
+  let coinType;
   let editingIndex = -1;
-  let error = false;
   let elements = [];
   $: total = items.reduce(
     (acc, item) => item.price * item.qty * item.coinData.value + acc,
     0
   );
-  
-  const reset = () => {
-    description = "";
-    price = 0;
-    qty = 1;
-    coinType = elements[0].coinType;
-  };
+  // error message
+  let error = "";
+  let descriptionError = "";
+  let priceError = "";
+  let qtyError = "";
+
+  // validate error
+  function handleDescriptionInput(event) {
+    const isValid = lettersRegex.test(event.target.value);
+
+    if (!isValid) {
+      descriptionError = "La descripción solo puede contener letras y espacios";
+    } else {
+      descriptionError = "";
+    }
+  }
+
+  function handlePriceInput(event) {
+    const isValid = numberRegex.test(event.target.value);
+
+    if (!isValid) {
+      priceError = "El precio solo puede contener números";
+    } else {
+      priceError = "";
+    }
+  }
+
+  function handleQtyInput(event) {
+    const isValid = numberRegex.test(event.target.value);
+
+    if (!isValid) {
+      qtyError = "La cantidad solo puede contener números";
+    } else {
+      qtyError = "";
+    }
+  }
 
   const validateInputData = () => {
     return (
@@ -39,9 +68,9 @@
 
   const handleSave = () => {
     if (!validateInputData()) {
-      error = true;
+      error = "Los datos de entrada son incorrectos";
       setTimeout(() => {
-        error = false;
+        error = "";
       }, 5000);
       return;
     }
@@ -51,17 +80,16 @@
       qty,
       coinData: elements.find((el) => el.coinType === coinType),
     };
-    items = [...items, inputData];
+    itemsStore.update((prevData) => [...prevData, inputData]);
     isModalOpen = false;
-    LocalStorageService.saveJSON(key, items);
   };
 
   const handleUpdate = () => {
     if (editingIndex !== -1) {
       if (!validateInputData()) {
-        error = true;
+        error = "Los datos de entrada son incorrectos";
         setTimeout(() => {
-          error = false;
+          error = "";
         }, 5000);
         return;
       }
@@ -71,26 +99,34 @@
         qty,
         coinData: elements.find((el) => el.coinType === coinType),
       };
-      items = items.map((item, i) => (i === editingIndex ? inputData : item));
+      itemsStore.update((prevData) =>
+        prevData.map((item, i) => (i === editingIndex ? inputData : item))
+      );
       isModalOpen = false;
       editingIndex = -1;
-      items = [...items];
-      LocalStorageService.saveJSON(key, items);
     }
   };
 
   const handleDelete = (index) => {
-    items = items.filter((item, i) => i !== index);
-    LocalStorageService.saveJSON(key, items);
+    itemsStore.update((prevData) => prevData.filter((item, i) => i !== index));
   };
 
   const handleModalClose = () => {
     isModalOpen = false;
   };
 
-  onMount(() => {
-    items = LocalStorageService.getJSON(key);
-    elements = LocalStorageService.getJSON("currencyData");
+  const unsubscribe = itemsStore.subscribe((value) => {
+    items = value;
+  });
+
+  const unsubscribe2 = currencyData.subscribe((value) => {
+    elements = value;
+    coinType = elements[0].coinType;
+  });
+
+  onDestroy(() => {
+    unsubscribe();
+    unsubscribe2();
   });
 </script>
 
@@ -105,7 +141,6 @@
       on:click={() => {
         isModalOpen = true;
         editingIndex = -1;
-        reset();
       }}>+ Añadir elemento</button
     >
   </div>
@@ -132,34 +167,46 @@
   </div>
   <div class="content">
     <input
-      class={error && "error"}
+      class={descriptionError && "error"}
       type="text"
       id="description"
       placeholder="Descripción..."
       bind:value={description}
+      on:input={handleDescriptionInput}
     />
+    {#if descriptionError}
+      <p class="error-message">{descriptionError}</p>
+    {/if}
     <input
-      class={error && "error"}
+      class={priceError && "error"}
       type="number"
       id="price"
       placeholder="Precio..."
       bind:value={price}
+      on:input={handlePriceInput}
     />
+    {#if priceError}
+      <p class="error-message">{priceError}</p>
+    {/if}
     <input
-      class={error && "error"}
+      class={qtyError && "error"}
       type="number"
       id="qty"
       placeholder="Cantidad..."
       bind:value={qty}
+      on:input={handleQtyInput}
     />
-    <select class={error && "error"} id="coinData" bind:value={coinType}>
+    {#if qtyError}
+      <p class="error-message">{qtyError}</p>
+    {/if}
+    <select id="coinData" bind:value={coinType}>
       {#each elements as el}
         <option value={el.coinType}>{el.coinType}</option>
       {/each}
     </select>
   </div>
   {#if error}
-    <div class="error">Se ha producido un error.</div>
+    <div class="error" transition:fade={{ duration: 500 }}>{error}</div>
   {/if}
   <div class="modal-footer">
     <button on:click={editingIndex === -1 ? handleSave : handleUpdate}

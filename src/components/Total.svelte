@@ -1,10 +1,7 @@
 <script>
-  import { onMount } from "svelte";
-  import { LocalStorageService } from "./../helpers/LocalStorageService";
+  import { onDestroy } from "svelte";
+  import { itemsDataFixed, itemsDataVariable } from "./../helpers/store";
   // variables
-  let items = [];
-  let items2 = [];
-  let total = 0;
   let totalFixed = 0;
   let totalVariable = 0;
 
@@ -15,12 +12,17 @@
     );
   };
 
-  onMount(() => {
-    items = LocalStorageService.getJSON("itemsDataFixed");
-    items2 = LocalStorageService.getJSON("itemsDataVariable");
-    totalFixed = getValue(items);
-    totalVariable = getValue(items2);
-    total = totalFixed + totalVariable;
+  const unsubscribe = itemsDataFixed.subscribe((value) => {
+    totalFixed = getValue(value);
+  });
+
+  const unsubscribe2 = itemsDataVariable.subscribe((value) => {
+    totalVariable = getValue(value);
+  });
+
+  onDestroy(() => {
+    unsubscribe();
+    unsubscribe2();
   });
 </script>
 
@@ -30,7 +32,7 @@
   </div>
   <div class="item-list">
     <div class="item">
-      <span>Total: ${total.toLocaleString()}</span>
+      <span>Total: ${(totalFixed + totalVariable).toLocaleString()}</span>
     </div>
     <div class="item">
       <span>Total Inversión Fija: ${totalFixed.toLocaleString()}</span>

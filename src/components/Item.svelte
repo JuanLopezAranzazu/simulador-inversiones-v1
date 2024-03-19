@@ -19,7 +19,7 @@
     <span>Moneda: {item?.coinData?.coinType}</span>
     <span>Total: ${getTotal(item).toLocaleString()}</span>
   </div>
-  <div class="item-content">
+  <div class="actions">
     <button on:click={handleUpdate(index)}>Editar</button>
     <button class="delete" on:click={handleDelete(index)}>Eliminar</button>
   </div>
@@ -35,7 +35,8 @@
     align-items: center;
   }
 
-  .item-content {
+  .item-content,
+  .actions {
     display: flex;
     gap: 10px;
   }

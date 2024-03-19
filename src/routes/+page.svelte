@@ -1,10 +1,11 @@
 <script>
+  // components
   import Fixed from "./../components/Fixed.svelte";
   import Variable from "./../components/Variable.svelte";
   import CoinType from "../components/CoinType.svelte";
   import Total from "../components/Total.svelte";
   import Tabs from "../components/Tabs.svelte";
-  //variables
+  // variables
   let items = [
     { label: "Inversión Fija", value: 1, component: Fixed },
     { label: "Inversión Variable", value: 2, component: Variable },

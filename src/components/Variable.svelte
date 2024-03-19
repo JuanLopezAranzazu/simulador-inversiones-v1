@@ -1,6 +1,7 @@
 <script>
+  import { itemsDataVariable } from "./../helpers/store";
   // components
   import Card from "./Card.svelte";
 </script>
 
-<Card key={"itemsDataVariable"} title={"Gestión Inversión Variable"}  />
+<Card itemsStore={itemsDataVariable} title={"Gestión Inversión Variable"} />
